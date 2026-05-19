@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MITAOE Hostel Portal - Lab Submission</title>
+    <style>
+        /* CSS Variables */
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #2b2b2b;
+            --card-bg: #ffffff;
+            --primary-color: #004d99;
+            --accent-color: #ff6b00;
+            --border-color: #e0e0e0;
+            --shadow: 0 10px 20px rgba(0,0,0,0.08);
+            --transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --card-bg: #1e1e1e;
+            --primary-color: #4da6ff;
+            --border-color: #333333;
+            --shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body { background-color: var(--bg-color); color: var(--text-color); transition: var(--transition); }
+
+        /* Header */
+        header {
+            background-color: var(--card-bg);
+            padding: 2rem 5%;
+            text-align: center;
+            border-bottom: 2px solid var(--primary-color);
+            position: relative;
+        }
+
+        header h1 { font-size: 2.5rem; color: var(--primary-color); margin-bottom: 0.5rem; }
+        header p { font-size: 1.1rem; opacity: 0.8; }
+
+        .theme-toggle {
+            position: absolute;
+            top: 2rem;
+            right: 5%;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 5%; }
+
+        /* Tabs & Controls */
+        .controls-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+        }
+
+        .tabs { display: flex; justify-content: center; gap: 1rem; }
+        
+        .tab-btn {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 2px solid var(--primary-color);
+            padding: 0.8rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        .tab-btn.active, .tab-btn:hover { background: var(--primary-color); color: white; }
+
+        .add-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            display: none; /* Hidden by default */
+            transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .add-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+
+        /* Grid */
+        .grid {
+            display: none;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+        .grid.active { display: grid; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .card:hover { transform: translateY(-5px); border-color: var(--accent-color); }
+
+        .card-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background-color: #cccccc;
+            position: relative;
+        }
+
+        .card-img::after {
+            content: 'Image goes here';
+            position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: #666; font-size: 0.9rem; z-index: 0;
+        }
+        .card-img img { width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 1; }
+
+        .card-content { padding: 1.5rem; }
+        .card-content h3 { color: var(--primary-color); margin-bottom: 0.5rem; }
+        .card-content p { font-size: 0.9rem; margin-bottom: 1rem; opacity: 0.8; }
+        
+        .badge {
+            background: var(--accent-color);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        /* Modals */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal.active { display: flex; animation: fadeIn 0.3s; }
+        
+        .modal-content {
+            background: var(--card-bg);
+            width: 90%; max-width: 700px; max-height: 85vh;
+            border-radius: 12px; overflow-y: auto;
+            position: relative; padding: 2rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .close-btn {
+            position: absolute; top: 1rem; right: 1.5rem;
+            font-size: 2rem; cursor: pointer; color: var(--text-color);
+            background: none; border: none;
+        }
+
+        .modal-title { color: var(--primary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--accent-color); padding-bottom: 0.5rem; }
+        .modal-section { margin-top: 1.5rem; }
+        .modal-section h4 { margin-bottom: 0.5rem; opacity: 0.9; }
+        .modal-section ul { padding-left: 1.5rem; line-height: 1.8; }
+        .modal-section li { margin-bottom: 0.3rem; }
+
+        /* Form Styles */
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: bold; font-size: 0.9rem; }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        .submit-btn {
+            width: 100%;
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        .submit-btn:hover { background: #003366; }
+
+        /* Student Submission Profile */
+        .submission-profile {
+            margin-top: 4rem;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border-left: 5px solid var(--accent-color);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .submission-profile h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            width: 100%;
+        }
+
+        .profile-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .profile-item { font-size: 1rem; }
+        .profile-item span {
+            font-weight: bold;
+            color: var(--primary-color);
+            display: block;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>MITAOE Accommodations</h1>
+        <p>Alandi Campus Hostel Directory</p>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+    </header>
+
+    <div class="container">
+        
+        <div class="controls-header">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('official')">Official MITAOE Hostels</button>
+                <button class="tab-btn" onclick="switchTab('unofficial')">External Private PGs</button>
+            </div>
+            <button id="addPgBtn" class="add-btn" onclick="openAddModal()">+ Add New PG</button>
+        </div>
+
+        <div id="official" class="grid active">
+            </div>
+
+        <div id="unofficial" class="grid">
+            </div>
+
+        <section class="submission-profile">
+            <h3>Portfolio Submission Details</h3>
+            <div class="profile-details">
+                <div class="profile-item">
+                    <span>Student Name</span>
+                    Atharva Shimpi
+                </div>
+                <div class="profile-item">
+                    <span>PRN</span>
+                    202501040223
+                </div>
+                <div class="profile-item">
+                    <span>Batch</span>
+                    BCT11
+                </div>
+                <div class="profile-item">
+                    <span>Department</span>
+                    1st Year, Computer Engineering
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <div class="modal" id="detailsModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('detailsModal')">&times;</button>
+            <h2 class="modal-title" id="m-title">Hostel Name</h2>
+            <p id="m-location">📍 Location</p>
+            
+            <div class="modal-section">
+                <h4>💰 Pricing & Fees</h4>
+                <ul id="m-pricing"></ul>
+            </div>
+
+            <div class="modal-section">
+                <h4>✨ Facilities</h4>
+                <ul id="m-facilities"></ul>
+            </div>
+
+            <div class="modal-section">
+                <h4>📞 Contact / Warden</h4>
+                <ul id="m-contact"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('addModal')">&times;</button>
+            <h2 class="modal-title">List a New External PG</h2>
+            
+            <form id="addHostelForm" onsubmit="handleFormSubmit(event)">
+                <div class="form-group">
+                    <label>PG Name</label>
+                    <input type="text" id="f-name" required placeholder="e.g., Sai Boys PG">
+                </div>
+                <div class="form-group">
+                    <label>Category / Intake (e.g., Boys PG, Girls PG)</label>
+                    <input type="text" id="f-intake" required placeholder="e.g., Boys PG">
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" id="f-location" required placeholder="e.g., Dehu Phata, Alandi">
+                </div>
+                <div class="form-group">
+                    <label>Pricing Options (Separate by commas)</label>
+                    <textarea id="f-pricing" required placeholder="e.g., Two Sharing: 50k, Three Sharing: 40k"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Facilities (Separate by commas)</label>
+                    <textarea id="f-facilities" required placeholder="e.g., Wi-Fi, Hot Water, Mess Included"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Contact Details (Name & Number)</label>
+                    <input type="text" id="f-contact" required placeholder="e.g., Mr. Sharma - 9876543210">
+                </div>
+                <button type="submit" class="submit-btn">Add Hostel to List</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Database
+        let hostels = [
+            {
+                id: 'vivekanand',
+                category: 'official',
+                name: 'Vivekanand Boys Hostel',
+                img: 'images/vivekanand.jpeg', 
+                intake: '110 Seats',
+                location: 'Maruti Suzuki Arena Showroom, Y Junction, Dehu Phata, Alandi',
+                pricing: ['Twin Bed Sharing (20 Beds): ₹99,000/-', 'Three Bed Sharing (90 Beds): ₹88,000/-'],
+                facilities: ['24x7 Wi-Fi & Generator Backup', 'Hot Water & Filtered Drinking Water', 'CCTV Surveillance & Security', 'Study Table, Chair, Wardrobe, Bed'],
+                contact: ['Dr. Swapnil Pathare (Chief Rector)', '+91-8888706757', 'chief.rector@mitaoe.ac.in']
+            },
+            {
+                id: 'eklavya',
+                category: 'official',
+                name: 'Eklavya Boys Hostel',
+                img: 'images/eklavya.jpeg',
+                intake: '88 Seats',
+                location: 'Near MITAOE Campus, Alandi',
+                pricing: ['2 / 3 / 6 Bed Sharing (88 Beds): ₹75,000/-'],
+                facilities: ['Wi-Fi connectivity', 'Pure drinking water', 'Study Table and Chair', 'Note: No lift available in this building'],
+                contact: ['Dr. Swapnil Pathare (Chief Rector)', '+91-8888706757']
+            },
+            {
+                id: 'ambika',
+                category: 'official',
+                name: 'Ambika & Ahilya Girls Hostel',
+                img: 'images/ambika.jpeg',
+                intake: '188 Seats Total',
+                location: 'Behind Atithi Hotel, Front of Campus',
+                pricing: ['Twin Sharing (2 Beds): ₹88,000/-', 'Four Sharing (108 Beds): ₹88,000/-', 'Deposit: ₹10,000/- (Refundable)'],
+                facilities: ['Lift Facility', 'Doctor on Call', 'Counselling Facility Available', 'CCTV Surveillance & Full-time Warden'],
+                contact: ['Ms. Surekha Dattatray Hajare (Residential Rector)', '9890319074', 'rectorgirlshostel@mitaoe.ac.in']
+            },
+            {
+                id: 'mauli',
+                category: 'unofficial',
+                name: 'Shree Mauli Boys PG',
+                img: 'images/mauli.jpeg',
+                intake: 'Private',
+                location: 'Gopalpura, Near Temple, Alandi',
+                pricing: ['Four Sharing: ₹35,000 / year', 'Mess Extra: ₹3,000 / month'],
+                facilities: ['Water Purifier', 'Solar Water Heater', 'Two-wheeler Parking'],
+                contact: ['Mr. Ramesh Patil (Owner)', '+91-9876543210']
+            },
+            {
+                id: 'matoshree',
+                category: 'unofficial',
+                name: 'Matoshree Girls PG',
+                img: 'images/matoshree.jpeg',
+                intake: 'Private',
+                location: 'Wadmukhwadi Road, Alandi',
+                pricing: ['Three Bed Sharing: ₹45,000 / year'],
+                facilities: ['In-house Mess', 'Free Wi-Fi', '9:00 PM Curfew'],
+                contact: ['Mrs. Vandana Deshmukh', '+91-9123456789']
+            }
+        ];
+
+        // Render Cards
+        function renderHostels() {
+            const offGrid = document.getElementById('official');
+            const unoffGrid = document.getElementById('unofficial');
+            
+            // Clear existing HTML before rendering to avoid duplicates when adding new ones
+            offGrid.innerHTML = '';
+            unoffGrid.innerHTML = '';
+            
+            hostels.forEach(h => {
+                const card = `
+                    <div class="card" onclick="openModal('${h.id}')">
+                        <div class="card-img"><img src="${h.img}" alt="${h.name}" onerror="this.style.display='none'"></div>
+                        <div class="card-content">
+                            <span class="badge">${h.intake}</span>
+                            <h3>${h.name}</h3>
+                            <p>📍 ${h.location}</p>
+                        </div>
+                    </div>
+                `;
+                h.category === 'official' ? offGrid.innerHTML += card : unoffGrid.innerHTML += card;
+            });
+        }
+
+        // Tab Switching & Button Toggle
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.grid').forEach(grid => grid.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+
+            // Show 'Add PG' button only on Unofficial tab
+            const addBtn = document.getElementById('addPgBtn');
+            if(tabId === 'unofficial') {
+                addBtn.style.display = 'block';
+            } else {
+                addBtn.style.display = 'none';
+            }
+        }
+
+        // Detail Modal Logic
+        function openModal(id) {
+            const h = hostels.find(x => x.id === id);
+            document.getElementById('m-title').innerText = h.name;
+            document.getElementById('m-location').innerText = '📍 ' + h.location;
+            
+            document.getElementById('m-pricing').innerHTML = h.pricing.map(p => `<li>${p}</li>`).join('');
+            document.getElementById('m-facilities').innerHTML = h.facilities.map(f => `<li>${f}</li>`).join('');
+            document.getElementById('m-contact').innerHTML = h.contact.map(c => `<li>${c}</li>`).join('');
+            
+            document.getElementById('detailsModal').classList.add('active');
+        }
+
+        // Generic Close Modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Add New PG Modal Logic
+        function openAddModal() {
+            document.getElementById('addModal').classList.add('active');
+        }
+
+        // Handle Form Submission
+        function handleFormSubmit(e) {
+            e.preventDefault(); // Prevents the page from refreshing
+
+            // Generate a random ID for the new hostel
+            const newId = 'pg_' + Math.floor(Math.random() * 10000);
+
+            // Capture data and format comma-separated strings into arrays
+            const newHostel = {
+                id: newId,
+                category: 'unofficial',
+                name: document.getElementById('f-name').value,
+                img: '', // Leave blank so the CSS fallback placeholder applies
+                intake: document.getElementById('f-intake').value,
+                location: document.getElementById('f-location').value,
+                pricing: document.getElementById('f-pricing').value.split(',').map(item => item.trim()),
+                facilities: document.getElementById('f-facilities').value.split(',').map(item => item.trim()),
+                contact: document.getElementById('f-contact').value.split(',').map(item => item.trim())
+            };
+
+            // Add to database
+            hostels.push(newHostel);
+
+            // Re-render the UI
+            renderHostels();
+
+            // Clear the form and close the modal
+            document.getElementById('addHostelForm').reset();
+            closeModal('addModal');
+        }
+
+        // Dark Mode Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.querySelector('.theme-toggle');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                btn.innerText = '🌙 Dark Mode';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                btn.innerText = '☀️ Light Mode';
+            }
+        }
+
+        // Initialize App
+        renderHostels();
+    </script>
+</body>
+</html>
